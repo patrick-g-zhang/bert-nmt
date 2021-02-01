@@ -301,6 +301,7 @@ class TransformerS2Model(FairseqEncoderDecoderModel):
         args.bert_out_dim = bertencoder.hidden_size
         encoder = cls.build_encoder(args, src_dict, encoder_embed_tokens)
         decoder = cls.build_decoder(args, tgt_dict, decoder_embed_tokens)
+        pdb.set_trace()
 
         return TransformerS2Model(encoder, decoder, bertencoder, src_berttokenizer, args.mask_cls_sep, args)
 
