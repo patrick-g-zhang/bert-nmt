@@ -117,6 +117,7 @@ def main(args):
         )
         offsets = Binarizer.find_offsets(input_file, num_workers)
         pool = None
+        pdb.set_trace()
         if num_workers > 1:
             pool = Pool(processes=num_workers - 1)
             for worker_id in range(1, num_workers):
