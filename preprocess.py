@@ -100,6 +100,7 @@ def main(args):
         tgt_dict.save(dict_path(args.target_lang))
 
     def make_binary_dataset(vocab, input_prefix, output_prefix, lang, num_workers):
+        pdb.set_trace()
         print("| [{}] Dictionary: {} types".format(lang, len(vocab) - 1))
         output_prefix += '.bert' if isinstance(vocab, BertTokenizer) else ''
         input_prefix += '.bert' if isinstance(vocab, BertTokenizer) else ''
@@ -120,19 +121,26 @@ def main(args):
             pool = Pool(processes=num_workers - 1)
             for worker_id in range(1, num_workers):
                 prefix = "{}{}".format(output_prefix, worker_id)
-                pool.apply_async(
-                    binarize,
-                    (
-                        args,
-                        input_file,
-                        vocab,
-                        prefix,
-                        lang,
-                        offsets[worker_id],
-                        offsets[worker_id + 1]
-                    ),
-                    callback=merge_result
-                )
+                # pool.apply_async(
+                #     binarize,
+                #     (
+                #         args,
+                #         input_file,
+                #         vocab,
+                #         prefix,
+                #         lang,
+                #         offsets[worker_id],
+                #         offsets[worker_id + 1]
+                #     ),
+                #     callback=merge_result
+                # )
+                binarize(args,
+                         input_file,
+                         vocab,
+                         prefix,
+                         lang,
+                         offsets[worker_id],
+                         offsets[worker_id + 1])
             pool.close()
 
         ds = indexed_dataset.make_builder(dataset_dest_file(
