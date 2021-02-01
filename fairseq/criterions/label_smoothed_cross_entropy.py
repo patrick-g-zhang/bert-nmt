@@ -10,6 +10,7 @@ import math
 from fairseq import utils
 
 from . import FairseqCriterion, register_criterion
+import pdb
 
 
 @register_criterion('label_smoothed_cross_entropy')
@@ -35,9 +36,12 @@ class LabelSmoothedCrossEntropyCriterion(FairseqCriterion):
         2) the sample size, which is used as the denominator for the gradient
         3) logging outputs to display while training
         """
+        pdb.set_trace()
         net_output = model(**sample['net_input'])
-        loss, nll_loss = self.compute_loss(model, net_output, sample, reduce=reduce)
-        sample_size = sample['target'].size(0) if self.args.sentence_avg else sample['ntokens']
+        loss, nll_loss = self.compute_loss(
+            model, net_output, sample, reduce=reduce)
+        sample_size = sample['target'].size(
+            0) if self.args.sentence_avg else sample['ntokens']
         logging_output = {
             'loss': utils.item(loss.data) if reduce else loss.data,
             'nll_loss': utils.item(nll_loss.data) if reduce else nll_loss.data,
