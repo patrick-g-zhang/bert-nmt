@@ -157,7 +157,6 @@ class TransformerModel(FairseqEncoderDecoderModel):
             decoder_embed_tokens = build_embedding(
                 tgt_dict, args.decoder_embed_dim, args.decoder_embed_path
             )
-        pdb.set_trace()
         bertencoder = BertModel.from_pretrained(args.bert_model_name)
         args.bert_out_dim = bertencoder.hidden_size
         encoder = cls.build_encoder(args, src_dict, encoder_embed_tokens)
@@ -252,7 +251,7 @@ class TransformerS2Model(FairseqEncoderDecoderModel):
     @classmethod
     def build_model(cls, args, task):
         """Build a new model instance."""
-
+        pdb.set_trace()
         # make sure all arguments are present in older models
         base_architecture(args)
 
@@ -336,6 +335,7 @@ class TransformerS2Model(FairseqEncoderDecoderModel):
                 - the decoder's output of shape `(batch, tgt_len, vocab)`
                 - a dictionary with any model-specific outputs
         """
+        pdb.set_trace()
         bert_encoder_padding_mask = bert_input.eq(self.berttokenizer.pad())
         bert_encoder_out, _ =  self.bert_encoder(bert_input, output_all_encoded_layers=True, attention_mask= 1. - bert_encoder_padding_mask)
         bert_encoder_out = bert_encoder_out[self.bert_output_layer]
@@ -1348,6 +1348,7 @@ class TransformerS2EncoderLayer(nn.Module):
         Returns:
             encoded output of shape `(batch, src_len, embed_dim)`
         """
+        pdb.set_trace()
         residual = x
         x = self.maybe_layer_norm(self.self_attn_layer_norm, x, before=True)
         x1, _ = self.self_attn(query=x, key=x, value=x, key_padding_mask=encoder_padding_mask)

@@ -18,6 +18,7 @@ from torch.nn import Parameter
 from fairseq import utils
 from fairseq.data import Dictionary
 from fairseq.models import FairseqDecoder, FairseqEncoder
+import pdb
 
 
 class BaseFairseqModel(nn.Module):
@@ -35,7 +36,8 @@ class BaseFairseqModel(nn.Module):
     @classmethod
     def build_model(cls, args, task):
         """Build a new model instance."""
-        raise NotImplementedError('Model must implement the build_model method')
+        raise NotImplementedError(
+            'Model must implement the build_model method')
 
     def get_targets(self, sample, net_output):
         """Get targets from either the sample or the net's output."""
@@ -161,7 +163,8 @@ class BaseFairseqModel(nn.Module):
         checkpoint_path = os.path.join(model_path, 'model.pt')
 
         # set data and parse
-        model_args = options.parse_args_and_arch(parser, input_args=[data_path])
+        model_args = options.parse_args_and_arch(
+            parser, input_args=[data_path])
 
         # override any kwargs passed in
         if kwargs is not None:
@@ -173,7 +176,8 @@ class BaseFairseqModel(nn.Module):
         task = tasks.setup_task(model_args)
         print("loading model checkpoint from {}".format(checkpoint_path))
 
-        model, _model_args = checkpoint_utils.load_model_ensemble([checkpoint_path], task=task)
+        model, _model_args = checkpoint_utils.load_model_ensemble(
+            [checkpoint_path], task=task)
 
         return model[0]
 
@@ -236,20 +240,26 @@ class FairseqEncoderDecoderModel(BaseFairseqModel):
                 - the decoder's output of shape `(batch, tgt_len, vocab)`
                 - a dictionary with any model-specific outputs
         """
-        encoder_out = self.encoder(src_tokens, src_lengths=src_lengths, **kwargs)
+        pdb.set_trace()
+        encoder_out = self.encoder(
+            src_tokens, src_lengths=src_lengths, **kwargs)
         bert_encoder_padding_mask = bert_input.eq(self.berttokenizer.pad())
-        bert_encoder_out, _ =  self.bert_encoder(bert_input, output_all_encoded_layers=True, attention_mask= 1. - bert_encoder_padding_mask)
+        bert_encoder_out, _ = self.bert_encoder(
+            bert_input, output_all_encoded_layers=True, attention_mask=1. - bert_encoder_padding_mask)
         bert_encoder_out = bert_encoder_out[self.bert_output_layer]
         if self.mask_cls_sep:
-            bert_encoder_padding_mask += bert_input.eq(self.berttokenizer.cls())
-            bert_encoder_padding_mask += bert_input.eq(self.berttokenizer.sep())
-        bert_encoder_out = bert_encoder_out.permute(1,0,2).contiguous()
+            bert_encoder_padding_mask += bert_input.eq(
+                self.berttokenizer.cls())
+            bert_encoder_padding_mask += bert_input.eq(
+                self.berttokenizer.sep())
+        bert_encoder_out = bert_encoder_out.permute(1, 0, 2).contiguous()
         # bert_encoder_out = F.linear(bert_encoder_out, self.trans_weight, self.trans_bias)
         bert_encoder_out = {
             'bert_encoder_out': bert_encoder_out,
             'bert_encoder_padding_mask': bert_encoder_padding_mask,
         }
-        decoder_out = self.decoder(prev_output_tokens, encoder_out=encoder_out, bert_encoder_out=bert_encoder_out, **kwargs)
+        decoder_out = self.decoder(
+            prev_output_tokens, encoder_out=encoder_out, bert_encoder_out=bert_encoder_out, **kwargs)
         return decoder_out
 
     def extract_features(self, src_tokens, src_lengths, prev_output_tokens, **kwargs):
@@ -261,8 +271,10 @@ class FairseqEncoderDecoderModel(BaseFairseqModel):
                 - the decoder's features of shape `(batch, tgt_len, embed_dim)`
                 - a dictionary with any model-specific outputs
         """
-        encoder_out = self.encoder(src_tokens, src_lengths=src_lengths, **kwargs)
-        features = self.decoder.extract_features(prev_output_tokens, encoder_out=encoder_out, **kwargs)
+        encoder_out = self.encoder(
+            src_tokens, src_lengths=src_lengths, **kwargs)
+        features = self.decoder.extract_features(
+            prev_output_tokens, encoder_out=encoder_out, **kwargs)
         return features
 
     def output_layer(self, features, **kwargs):
@@ -287,6 +299,7 @@ class FairseqModel(FairseqEncoderDecoderModel):
             'or BaseFairseqModel instead',
             stacklevel=4,
         )
+
 
 class FairseqMultiModel(BaseFairseqModel):
     """Base class for combining multiple encoder-decoder models."""
@@ -339,7 +352,8 @@ class FairseqMultiModel(BaseFairseqModel):
     def forward(self, src_tokens, src_lengths, prev_output_tokens, **kwargs):
         decoder_outs = {}
         for key in self.keys:
-            encoder_out = self.models[key].encoder(src_tokens, src_lengths, **kwargs)
+            encoder_out = self.models[key].encoder(
+                src_tokens, src_lengths, **kwargs)
             decoder_outs[key] = self.models[key].decoder(
                 prev_output_tokens, encoder_out, **kwargs,
             )
@@ -348,7 +362,8 @@ class FairseqMultiModel(BaseFairseqModel):
     def max_positions(self):
         """Maximum length supported by the model."""
         return {
-            key: (self.models[key].encoder.max_positions(), self.models[key].decoder.max_positions())
+            key: (self.models[key].encoder.max_positions(),
+                  self.models[key].decoder.max_positions())
             for key in self.keys
         }
 
