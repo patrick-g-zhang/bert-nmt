@@ -4,7 +4,7 @@
 # This source code is licensed under the license found in the LICENSE file in
 # the root directory of this source tree. An additional grant of patent rights
 # can be found in the PATENTS file in the same directory.
-
+import pdb
 import math
 
 import torch
@@ -111,7 +111,7 @@ class TransformerModel(FairseqEncoderDecoderModel):
     @classmethod
     def build_model(cls, args, task):
         """Build a new model instance."""
-
+        pdb.set_trace()
         # make sure all arguments are present in older models
         base_architecture(args)
 
@@ -157,6 +157,7 @@ class TransformerModel(FairseqEncoderDecoderModel):
             decoder_embed_tokens = build_embedding(
                 tgt_dict, args.decoder_embed_dim, args.decoder_embed_path
             )
+        pdb.set_trace()
         bertencoder = BertModel.from_pretrained(args.bert_model_name)
         args.bert_out_dim = bertencoder.hidden_size
         encoder = cls.build_encoder(args, src_dict, encoder_embed_tokens)
