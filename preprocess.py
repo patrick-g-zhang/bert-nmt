@@ -19,11 +19,13 @@ from multiprocessing import Pool
 from bert import BertTokenizer
 import os
 import shutil
+import pdb
 
 
 def main(args):
     utils.import_user_module(args)
 
+    pdb.set_trace()
     print(args)
 
     os.makedirs(args.destdir, exist_ok=True)
@@ -80,14 +82,16 @@ def main(args):
             src_dict = task.load_dictionary(args.srcdict)
         else:
             assert args.trainpref, "--trainpref must be set if --srcdict is not specified"
-            src_dict = build_dictionary([train_path(args.source_lang)], src=True)
+            src_dict = build_dictionary(
+                [train_path(args.source_lang)], src=True)
 
         if target:
             if args.tgtdict:
                 tgt_dict = task.load_dictionary(args.tgtdict)
             else:
                 assert args.trainpref, "--trainpref must be set if --tgtdict is not specified"
-                tgt_dict = build_dictionary([train_path(args.target_lang)], tgt=True)
+                tgt_dict = build_dictionary(
+                    [train_path(args.target_lang)], tgt=True)
         else:
             tgt_dict = None
 
@@ -131,7 +135,8 @@ def main(args):
                 )
             pool.close()
 
-        ds = indexed_dataset.make_builder(dataset_dest_file(args, output_prefix, lang, "bin"), impl=args.dataset_impl)
+        ds = indexed_dataset.make_builder(dataset_dest_file(
+            args, output_prefix, lang, "bin"), impl=args.dataset_impl)
         merge_result(
             Binarizer.binarize(
                 input_file, vocab, lambda t: ds.add_item(t),
@@ -164,24 +169,29 @@ def main(args):
         if args.dataset_impl == "raw":
             # Copy original text file to destination folder
             output_text_file = dest_path(
-                output_prefix + ".{}-{}".format(args.source_lang, args.target_lang),
+                output_prefix +
+                ".{}-{}".format(args.source_lang, args.target_lang),
                 lang,
             )
             shutil.copyfile(file_name(input_prefix, lang), output_text_file)
         else:
-            make_binary_dataset(vocab, input_prefix, output_prefix, lang, num_workers)
+            make_binary_dataset(vocab, input_prefix,
+                                output_prefix, lang, num_workers)
 
     def make_all(lang, vocab):
         if args.trainpref:
-            make_dataset(vocab, args.trainpref, "train", lang, num_workers=args.workers)
+            make_dataset(vocab, args.trainpref, "train",
+                         lang, num_workers=args.workers)
         if args.validpref:
             for k, validpref in enumerate(args.validpref.split(",")):
                 outprefix = "valid{}".format(k) if k > 0 else "valid"
-                make_dataset(vocab, validpref, outprefix, lang, num_workers=args.workers)
+                make_dataset(vocab, validpref, outprefix,
+                             lang, num_workers=args.workers)
         if args.testpref:
             for k, testpref in enumerate(args.testpref.split(",")):
                 outprefix = "test{}".format(k) if k > 0 else "test"
-                make_dataset(vocab, testpref, outprefix, lang, num_workers=args.workers)
+                make_dataset(vocab, testpref, outprefix,
+                             lang, num_workers=args.workers)
 
     make_all(args.source_lang, src_dict)
     if target:
@@ -203,7 +213,8 @@ def main(args):
                     for a, s, t in zip_longest(align_file, src_file, tgt_file):
                         si = src_dict.encode_line(s, add_if_not_exist=False)
                         ti = tgt_dict.encode_line(t, add_if_not_exist=False)
-                        ai = list(map(lambda x: tuple(x.split("-")), a.split()))
+                        ai = list(
+                            map(lambda x: tuple(x.split("-")), a.split()))
                         for sai, tai in ai:
                             srcidx = si[int(sai)]
                             tgtidx = ti[int(tai)]
@@ -222,12 +233,14 @@ def main(args):
 
         align_dict = {}
         for srcidx in freq_map.keys():
-            align_dict[srcidx] = max(freq_map[srcidx], key=freq_map[srcidx].get)
+            align_dict[srcidx] = max(
+                freq_map[srcidx], key=freq_map[srcidx].get)
 
         with open(
                 os.path.join(
                     args.destdir,
-                    "alignment.{}-{}.txt".format(args.source_lang, args.target_lang),
+                    "alignment.{}-{}.txt".format(args.source_lang,
+                                                 args.target_lang),
                 ),
                 "w", encoding='utf-8'
         ) as f:
@@ -236,7 +249,8 @@ def main(args):
 
 
 def binarize(args, filename, vocab, output_prefix, lang, offset, end, append_eos=True):
-    ds = indexed_dataset.make_builder(dataset_dest_file(args, output_prefix, lang, "bin"), impl=args.dataset_impl)
+    ds = indexed_dataset.make_builder(dataset_dest_file(
+        args, output_prefix, lang, "bin"), impl=args.dataset_impl)
 
     def consumer(tensor):
         ds.add_item(tensor)
@@ -250,7 +264,8 @@ def binarize(args, filename, vocab, output_prefix, lang, offset, end, append_eos
 def dataset_dest_prefix(args, output_prefix, lang):
     base = "{}/{}".format(args.destdir, output_prefix)
     lang_part = (
-        ".{}-{}.{}".format(args.source_lang, args.target_lang, lang) if lang is not None else ""
+        ".{}-{}.{}".format(args.source_lang, args.target_lang,
+                           lang) if lang is not None else ""
     )
     return "{}{}".format(base, lang_part)
 

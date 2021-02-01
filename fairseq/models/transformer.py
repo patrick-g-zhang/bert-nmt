@@ -111,7 +111,6 @@ class TransformerModel(FairseqEncoderDecoderModel):
     @classmethod
     def build_model(cls, args, task):
         """Build a new model instance."""
-        pdb.set_trace()
         # make sure all arguments are present in older models
         base_architecture(args)
 
