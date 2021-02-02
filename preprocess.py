@@ -201,9 +201,9 @@ def main(args):
                 make_dataset(vocab, testpref, outprefix,
                              lang, num_workers=args.workers)
 
-    make_all(args.source_lang, src_dict)
-    if target:
-        make_all(args.target_lang, tgt_dict)
+    # make_all(args.source_lang, src_dict)
+    # if target:
+        # make_all(args.target_lang, tgt_dict)
     pdb.set_trace()
     berttokenizer = BertTokenizer.from_pretrained(args.bert_model_name)
     make_all(args.source_lang, berttokenizer)
