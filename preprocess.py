@@ -121,26 +121,26 @@ def main(args):
             pool = Pool(processes=num_workers - 1)
             for worker_id in range(1, num_workers):
                 prefix = "{}{}".format(output_prefix, worker_id)
-                # pool.apply_async(
-                #     binarize,
-                #     (
-                #         args,
-                #         input_file,
-                #         vocab,
-                #         prefix,
-                #         lang,
-                #         offsets[worker_id],
-                #         offsets[worker_id + 1]
-                #     ),
-                #     callback=merge_result
-                # )
-                binarize(args,
-                         input_file,
-                         vocab,
-                         prefix,
-                         lang,
-                         offsets[worker_id],
-                         offsets[worker_id + 1])
+                pool.apply_async(
+                    binarize,
+                    (
+                        args,
+                        input_file,
+                        vocab,
+                        prefix,
+                        lang,
+                        offsets[worker_id],
+                        offsets[worker_id + 1]
+                    ),
+                    callback=merge_result
+                )
+                # binarize(args,
+                #          input_file,
+                #          vocab,
+                #          prefix,
+                #          lang,
+                #          offsets[worker_id],
+                #          offsets[worker_id + 1])
             pool.close()
 
         ds = indexed_dataset.make_builder(dataset_dest_file(
@@ -201,10 +201,10 @@ def main(args):
                 make_dataset(vocab, testpref, outprefix,
                              lang, num_workers=args.workers)
 
-    # make_all(args.source_lang, src_dict)
-    # if target:
-        # make_all(args.target_lang, tgt_dict)
-    pdb.set_trace()
+    make_all(args.source_lang, src_dict)
+    if target:
+        make_all(args.target_lang, tgt_dict)
+
     berttokenizer = BertTokenizer.from_pretrained(args.bert_model_name)
     make_all(args.source_lang, berttokenizer)
 
