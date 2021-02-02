@@ -25,7 +25,6 @@ import pdb
 def main(args):
     utils.import_user_module(args)
 
-    pdb.set_trace()
     print(args)
 
     os.makedirs(args.destdir, exist_ok=True)
@@ -100,7 +99,7 @@ def main(args):
         tgt_dict.save(dict_path(args.target_lang))
 
     def make_binary_dataset(vocab, input_prefix, output_prefix, lang, num_workers):
-        pdb.set_trace()
+
         print("| [{}] Dictionary: {} types".format(lang, len(vocab) - 1))
         output_prefix += '.bert' if isinstance(vocab, BertTokenizer) else ''
         input_prefix += '.bert' if isinstance(vocab, BertTokenizer) else ''

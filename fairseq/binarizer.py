@@ -35,7 +35,7 @@ class Binarizer:
         def replaced_consumer(word, idx):
             if idx == dict.unk_index and word != dict.unk_word:
                 replaced.update([word])
-        pdb.set_trace()
+
         with open(filename, 'r', encoding='utf-8') as f:
             f.seek(offset)
             # next(f) breaks f.tell(), hence readline() must be used
